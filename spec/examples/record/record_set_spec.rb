@@ -709,6 +709,24 @@ describe Cequel::Record::RecordSet do
       end
     end
 
+    context 'with a large list of keys' do
+      let(:blogs) do
+        1001.times.map do |i|
+          Blog.new do |blog|
+            blog.subdomain = "blog-#{i}"
+            blog.name = "Blog #{i}"
+            blog.description = "This is Blog number #{i}"
+          end
+        end
+      end
+      let(:keys) { blogs.map(&:subdomain) }
+      let(:records) { blogs }
+
+      it 'should correctly return all items' do
+        expect(Blog.where(subdomain: keys).to_a.count).to eq(blogs.count)
+      end
+    end
+
     context 'compound primary key' do
       it 'should correctly query for first primary key column' do
         expect(Post.where(blog_subdomain: 'cassandra'))
